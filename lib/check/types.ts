@@ -9,7 +9,11 @@ export type NormalizedPayslipField =
   | "netPay"
   | "payPeriod";
 
-export type SupplementaryPayslipField = "totalDeductions";
+export type SupplementaryPayslipField =
+  | "totalDeductions"
+  | "pension"
+  | "medicalAid"
+  | "bonus";
 
 export type ExtractionPageSummary = {
   pageNumber: number;

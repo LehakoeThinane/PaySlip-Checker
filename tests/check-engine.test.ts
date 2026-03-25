@@ -206,3 +206,31 @@ test("normalization matches broader South African payslip aliases", () => {
   assert.equal(payPeriod.value, "2026/03/31");
   assert.equal(totalDeductions.value, 3377.12);
 });
+
+test("normalization captures supplementary payroll lines for richer explanations", () => {
+  const normalized = normalizePayslipFields(
+    [
+      "Gross Salary: 32932.11",
+      "PAYE: 3904.02",
+      "UIF: 177.12",
+      "Pension Fund: 1203.90",
+      "Bonitas Medical Aid: 1429.00",
+      "13th Cheque: 16052.03",
+      "Total Deductions: 6876.20",
+      "Net Pay: 26055.91",
+      "Pay Period: 2025/12/31",
+    ].join(" "),
+  );
+
+  const supplementaryFields = normalized.supplementaryFields.reduce<
+    Record<string, number>
+  >((accumulator, field) => {
+    accumulator[field.field] = field.value;
+    return accumulator;
+  }, {});
+
+  assert.equal(supplementaryFields.totalDeductions, 6876.2);
+  assert.equal(supplementaryFields.pension, 1203.9);
+  assert.equal(supplementaryFields.medicalAid, 1429);
+  assert.equal(supplementaryFields.bonus, 16052.03);
+});

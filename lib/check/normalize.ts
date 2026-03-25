@@ -13,7 +13,7 @@ type MoneyFieldDefinition = {
 };
 
 type SupplementaryMoneyFieldDefinition = {
-  field: "totalDeductions";
+  field: "totalDeductions" | "pension" | "medicalAid" | "bonus";
   label: string;
   patterns: RegExp[];
 };
@@ -62,6 +62,27 @@ const supplementaryMoneyFieldDefinitions: SupplementaryMoneyFieldDefinition[] = 
     label: "Total deductions",
     patterns: [
       /(?:total\s+deductions|deductions\s+total|total\s+statutory\s+deductions|deduction\s+total|total\s+employee\s+deductions)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+    ],
+  },
+  {
+    field: "pension",
+    label: "Pension / provident",
+    patterns: [
+      /(?:pension(?:\s+fund)?|provident(?:\s+fund)?)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+    ],
+  },
+  {
+    field: "medicalAid",
+    label: "Medical aid",
+    patterns: [
+      /(?:medical\s+aid|med(?:ical)?\s+aid|hospital\s+plan|bonitas(?:\s+medical\s+aid)?)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+    ],
+  },
+  {
+    field: "bonus",
+    label: "Bonus / 13th cheque",
+    patterns: [
+      /(?:bonus|annual\s+bonus|13th\s+cheque|thirteenth\s+cheque)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
     ],
   },
 ];

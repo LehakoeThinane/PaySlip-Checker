@@ -513,6 +513,11 @@ export function CheckWorkbench() {
                 >
                   {response.data.normalized.foundFields.length}/5 fields found
                 </span>
+                {response.data.normalized.supplementaryFields.length > 0 ? (
+                  <span className="inline-flex rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-sky-800">
+                    {response.data.normalized.supplementaryFields.length} supplementary
+                  </span>
+                ) : null}
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {response.data.normalized.foundFields.map((field) => (
