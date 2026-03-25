@@ -1,0 +1,26 @@
+CTC Payslip
+Emp. Code 12345
+Date Engaged 2022/01/10
+Pay Period 2026/03/31
+Emp. Name Example Employee
+Job Title Payroll Clerk
+Co. Name Example Legal Services (PTY) LTD
+Known As Example Co.
+Hours Per Period 160.00
+Payment Type ACB
+Earnings Description Amount
+Cash Component 14,500.00
+Overtime 1.5 850.00
+13th Cheque 1,500.00
+Total Earnings 16,850.00
+Deductions Description Amount
+Pay as you Earn 2,300.00
+Unemployment Insurance Fund 168.50
+Pension 900.00
+Bonitas Medical Aid 1,200.00
+Total Deductions 4,568.50
+Net Pay 12,281.50
+Cost To Company Description Amount
+Cash Component 14,500.00
+Pension Company 900.00
+Medical Aid Company 1,050.00

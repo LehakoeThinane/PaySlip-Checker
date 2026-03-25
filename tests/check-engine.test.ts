@@ -234,3 +234,36 @@ test("normalization captures supplementary payroll lines for richer explanations
   assert.equal(supplementaryFields.medicalAid, 1429);
   assert.equal(supplementaryFields.bonus, 16052.03);
 });
+
+test("sanitized employer-style fixture preserves realistic payslip layout coverage", async () => {
+  const text = await loadFixture("employer-layout-scorpion-sanitized.txt");
+
+  const normalized = normalizePayslipFields(text);
+  const verdict = comparePayslip(normalized);
+  const supplementaryFields = normalized.supplementaryFields.reduce<
+    Record<string, number>
+  >((accumulator, field) => {
+    accumulator[field.field] = field.value;
+    return accumulator;
+  }, {});
+
+  assert.equal(normalized.foundFields.length, 5);
+  assert.equal(normalized.missingFields.length, 0);
+  assert.equal(verdict.overall, "pass");
+  assert.equal(normalized.foundFields.find((field) => field.field === "grossPay")?.value, 16850);
+  assert.equal(normalized.foundFields.find((field) => field.field === "paye")?.value, 2300);
+  assert.equal(normalized.foundFields.find((field) => field.field === "uif")?.value, 168.5);
+  assert.equal(normalized.foundFields.find((field) => field.field === "netPay")?.value, 12281.5);
+  assert.equal(
+    normalized.foundFields.find((field) => field.field === "payPeriod")?.value,
+    "2026/03/31",
+  );
+  assert.equal(supplementaryFields.totalDeductions, 4568.5);
+  assert.equal(supplementaryFields.pension, 900);
+  assert.equal(supplementaryFields.medicalAid, 1200);
+  assert.equal(supplementaryFields.bonus, 1500);
+  assert.equal(
+    normalizeCurrencyText(verdict.checks[2]?.metrics?.expectedValue),
+    "1228150",
+  );
+});
