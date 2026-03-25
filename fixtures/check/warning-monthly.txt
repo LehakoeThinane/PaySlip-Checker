@@ -1,0 +1,7 @@
+Monthly Payslip
+Employee: Sam Borderline
+Period: 01/03/2026 - 31/03/2026
+Total Earnings: 18000.00
+Employees Tax: 900.00
+UIF: 195.00
+Take Home Pay: 16875.00

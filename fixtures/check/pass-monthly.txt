@@ -1,0 +1,7 @@
+Salary Advice
+Employee: Jane Example
+Pay Period: March 2026
+Gross Pay: 25000.00
+PAYE: 3200.00
+UIF: 177.12
+Net Pay: 21622.88
