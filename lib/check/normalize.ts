@@ -30,28 +30,28 @@ const moneyFieldDefinitions: MoneyFieldDefinition[] = [
     field: "grossPay",
     label: "Gross pay",
     patterns: [
-      /(?:gross\s+(?:pay|salary)|total\s+earnings|earnings)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+      /(?:gross\s+(?:pay|salary)|basic\s+salary|basic\s+pay|total\s+earnings|gross\s+earnings|monthly\s+earnings|earnings)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
     ],
   },
   {
     field: "paye",
     label: "PAYE",
     patterns: [
-      /(?:pay\s+as\s+you\s+earn|paye|paye\s+tax|employees?\s+tax|employee'?s\s+tax|income\s+tax|tax)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+      /(?:pay\s+as\s+you\s+earn|paye(?:\s+tax)?|employees?\s+tax|employee'?s\s+tax|tax\s+paid|income\s+tax|site|paye)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
     ],
   },
   {
     field: "uif",
     label: "UIF",
     patterns: [
-      /(?:uif|unemployment\s+insurance\s+fund)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+      /(?:uif(?:\s+contribution)?|unemployment\s+insurance\s+fund)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
     ],
   },
   {
     field: "netPay",
     label: "Net pay",
     patterns: [
-      /(?:net\s+(?:pay|salary)|take[\s-]?home(?:\s+pay)?)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+      /(?:net\s+(?:pay|salary)|take[\s-]?home(?:\s+pay)?|amount\s+due|salary\s+payment|nett\s+pay)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
     ],
   },
 ];
@@ -61,12 +61,18 @@ const supplementaryMoneyFieldDefinitions: SupplementaryMoneyFieldDefinition[] = 
     field: "totalDeductions",
     label: "Total deductions",
     patterns: [
-      /(?:total\s+deductions|deductions\s+total)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+      /(?:total\s+deductions|deductions\s+total|total\s+statutory\s+deductions|deduction\s+total|total\s+employee\s+deductions)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
     ],
   },
 ];
 
 const payPeriodPatterns = [
+  /(?:pay\s+period|period|salary\s+period)\s*[:\-]?\s*([a-z]{3,9}\s+\d{4}\s*(?:-|to)\s*[a-z]{3,9}\s+\d{4})/i,
+  /(?:pay\s+period|period|salary\s+period)\s*[:\-]?\s*([a-z]{3,9}\s+\d{4})/i,
+  /(?:pay\s+period|period|salary\s+period)\s*[:\-]?\s*(\d{4}[\/-]\d{1,2}[\/-]\d{1,2}\s*(?:-|to)\s*\d{4}[\/-]\d{1,2}[\/-]\d{1,2})/i,
+  /(?:pay\s+period|period|salary\s+period)\s*[:\-]?\s*(\d{4}[\/-]\d{1,2}[\/-]\d{1,2})/i,
+  /(?:pay\s+period|period|salary\s+period)\s*[:\-]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}\s*(?:-|to)\s*\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i,
+  /(?:pay\s+period|period|salary\s+period)\s*[:\-]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i,
   /(?:pay\s+period|period)\s*[:\-]?\s*([a-z]{3,9}\s+\d{4}\s*(?:-|to)\s*[a-z]{3,9}\s+\d{4})/i,
   /(?:pay\s+period|period)\s*[:\-]?\s*([a-z]{3,9}\s+\d{4})/i,
   /(?:pay\s+period|period)\s*[:\-]?\s*(\d{4}[\/-]\d{1,2}[\/-]\d{1,2}\s*(?:-|to)\s*\d{4}[\/-]\d{1,2}[\/-]\d{1,2})/i,

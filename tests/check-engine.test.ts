@@ -170,3 +170,39 @@ test("net pay reconciliation uses total deductions when available", () => {
     6876.2,
   );
 });
+
+test("normalization matches broader South African payslip aliases", () => {
+  const normalized = normalizePayslipFields(
+    [
+      "Salary Advice",
+      "Salary Period: 2026/03/31",
+      "Basic Salary: 25000.00",
+      "Employees Tax: 3200.00",
+      "UIF Contribution: 177.12",
+      "Amount Due: 21622.88",
+      "Deduction Total: 3377.12",
+    ].join(" "),
+  );
+
+  const grossPay = normalized.foundFields.find((field) => field.field === "grossPay");
+  const paye = normalized.foundFields.find((field) => field.field === "paye");
+  const uif = normalized.foundFields.find((field) => field.field === "uif");
+  const netPay = normalized.foundFields.find((field) => field.field === "netPay");
+  const payPeriod = normalized.foundFields.find((field) => field.field === "payPeriod");
+  const totalDeductions = normalized.supplementaryFields.find(
+    (field) => field.field === "totalDeductions",
+  );
+
+  assert.ok(grossPay);
+  assert.ok(paye);
+  assert.ok(uif);
+  assert.ok(netPay);
+  assert.ok(payPeriod);
+  assert.ok(totalDeductions);
+  assert.equal(grossPay.value, 25000);
+  assert.equal(paye.value, 3200);
+  assert.equal(uif.value, 177.12);
+  assert.equal(netPay.value, 21622.88);
+  assert.equal(payPeriod.value, "2026/03/31");
+  assert.equal(totalDeductions.value, 3377.12);
+});
