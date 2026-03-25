@@ -55,6 +55,14 @@ function formatPercentage(value: number) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+function getSupplementarySummary(normalized: NormalizedPayslipData) {
+  if (normalized.supplementaryFields.length === 0) {
+    return null;
+  }
+
+  return normalized.supplementaryFields.map((field) => field.label).join(", ");
+}
+
 function buildCompletenessCheck(
   normalized: NormalizedPayslipData,
 ): PayslipCheckResult {
@@ -344,6 +352,11 @@ export function comparePayslip(normalized: NormalizedPayslipData): PayslipVerdic
     "PAYE is currently checked with a broad effective-rate heuristic, not a full tax-table calculation.",
     "When a total deductions figure is present, net pay reconciliation uses it ahead of PAYE-plus-UIF-only matching.",
   ];
+  const supplementarySummary = getSupplementarySummary(normalized);
+
+  if (supplementarySummary) {
+    notes.push(`Recognized other payroll lines: ${supplementarySummary}.`);
+  }
 
   const summaryMap: Record<CheckSeverity, string> = {
     pass: "The extracted values look internally consistent for the current MVP checks.",

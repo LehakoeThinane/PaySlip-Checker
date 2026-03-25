@@ -69,6 +69,22 @@ function getCheckByCode(
   return checks.find((check) => check.code === code);
 }
 
+function formatSupplementarySummary(labels: string[]) {
+  if (labels.length === 0) {
+    return null;
+  }
+
+  if (labels.length === 1) {
+    return labels[0];
+  }
+
+  if (labels.length === 2) {
+    return `${labels[0]} and ${labels[1]}`;
+  }
+
+  return `${labels.slice(0, -1).join(", ")}, and ${labels.at(-1)}`;
+}
+
 export function CheckWorkbench() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -273,6 +289,13 @@ export function CheckWorkbench() {
               const summaryChecks = [payeCheck, uifCheck, netPayCheck].filter(
                 (check): check is PayslipCheckResult => Boolean(check),
               );
+              const supplementaryLabels = response.data.normalized.supplementaryFields.map(
+                (field) => field.label,
+              );
+              const supplementarySummary = formatSupplementarySummary(
+                supplementaryLabels,
+              );
+              const netPayExplanation = netPayCheck?.detail.split(". ")[0] ?? null;
 
               return (
                 <>
@@ -346,6 +369,46 @@ export function CheckWorkbench() {
                   >
                     {response.data.verdict.overall}
                   </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Why this result
+                </h3>
+                <p className="text-sm text-slate-600">
+                  A short plain-English summary of the strongest signals
+                </p>
+              </div>
+              <div className="grid gap-3 xl:grid-cols-3">
+                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Reconciliation basis
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-slate-700">
+                    {netPayExplanation ??
+                      "Net pay reconciliation details will appear here once the check runs."}
+                  </p>
+                </div>
+                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Other lines recognized
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-slate-700">
+                    {supplementarySummary
+                      ? supplementarySummary
+                      : "No supplementary payroll lines were recognized in this payslip."}
+                  </p>
+                </div>
+                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Current model
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-slate-700">
+                    Deterministic internal-consistency checks only. No OCR and no AI fraud claims in this MVP.
+                  </p>
                 </div>
               </div>
             </div>
