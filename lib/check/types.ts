@@ -9,6 +9,8 @@ export type NormalizedPayslipField =
   | "netPay"
   | "payPeriod";
 
+export type SupplementaryPayslipField = "totalDeductions";
+
 export type ExtractionPageSummary = {
   pageNumber: number;
   preview: string;
@@ -16,7 +18,7 @@ export type ExtractionPageSummary = {
 };
 
 export type NormalizedMoneyField = {
-  field: Exclude<NormalizedPayslipField, "payPeriod">;
+  field: Exclude<NormalizedPayslipField, "payPeriod"> | SupplementaryPayslipField;
   label: string;
   value: number;
   formattedValue: string;
@@ -41,6 +43,7 @@ export type MissingNormalizedField = {
 export type NormalizedPayslipData = {
   foundFields: Array<NormalizedMoneyField | NormalizedTextField>;
   missingFields: MissingNormalizedField[];
+  supplementaryFields: NormalizedMoneyField[];
   notes: string[];
 };
 

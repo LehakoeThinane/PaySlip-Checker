@@ -150,3 +150,23 @@ test("uif check applies the monthly statutory cap", () => {
     "17712",
   );
 });
+
+test("net pay reconciliation uses total deductions when available", () => {
+  const normalized = normalizePayslipFields(
+    "Gross Pay: 32932.11 Pay as you Earn 3904.02 UIF 177.12 Total Deductions 6876.20 Net Pay 26055.91 Period: 2025/12/31",
+  );
+  const verdict = comparePayslip(normalized);
+  const netPayCheck = verdict.checks.find((check) => check.code === "net-pay");
+
+  assert.ok(netPayCheck);
+  assert.equal(netPayCheck.severity, "pass");
+  assert.equal(
+    normalizeCurrencyText(netPayCheck.metrics?.expectedValue),
+    "2605591",
+  );
+  assert.equal(
+    normalized.supplementaryFields.find((field) => field.field === "totalDeductions")
+      ?.value,
+    6876.2,
+  );
+});

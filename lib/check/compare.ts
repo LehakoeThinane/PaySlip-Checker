@@ -19,7 +19,12 @@ function getMoneyField(
   normalized: NormalizedPayslipData,
   field: NormalizedMoneyField["field"],
 ) {
-  return normalized.foundFields.find(
+  const allMoneyFields = [
+    ...normalized.foundFields,
+    ...normalized.supplementaryFields,
+  ];
+
+  return allMoneyFields.find(
     (item): item is NormalizedMoneyField =>
       "formattedValue" in item && item.field === field,
   );
@@ -99,6 +104,7 @@ function buildNetPayCheck(normalized: NormalizedPayslipData): PayslipCheckResult
   const paye = getMoneyField(normalized, "paye");
   const uif = getMoneyField(normalized, "uif");
   const netPay = getMoneyField(normalized, "netPay");
+  const totalDeductions = getMoneyField(normalized, "totalDeductions");
 
   if (!grossPay || !paye || !uif || !netPay) {
     return {
@@ -111,8 +117,17 @@ function buildNetPayCheck(normalized: NormalizedPayslipData): PayslipCheckResult
     };
   }
 
-  const expectedNetPay = grossPay.value - paye.value - uif.value;
+  const basicDeductions = paye.value + uif.value;
+  const expectedNetPay = totalDeductions
+    ? grossPay.value - totalDeductions.value
+    : grossPay.value - basicDeductions;
   const difference = Math.abs(expectedNetPay - netPay.value);
+  const expectationLabel = totalDeductions
+    ? "Expected net pay from total deductions"
+    : "Expected net pay";
+  const reconciliationBasis = totalDeductions
+    ? `Using gross pay minus total deductions (${totalDeductions.formattedValue}).`
+    : `Using gross pay minus PAYE and UIF only (${formatCurrency(basicDeductions)} total deductions found across those two fields).`;
 
   if (difference <= NET_PAY_TOLERANCE) {
     return {
@@ -120,11 +135,11 @@ function buildNetPayCheck(normalized: NormalizedPayslipData): PayslipCheckResult
       title: "Net pay reconciliation",
       severity: "pass",
       summary: "Net pay matches the extracted deductions within tolerance.",
-      detail: `Expected ${formatCurrency(expectedNetPay)} and found ${netPay.formattedValue}. Difference: ${formatCurrency(difference)}.`,
+      detail: `${reconciliationBasis} Expected ${formatCurrency(expectedNetPay)} and found ${netPay.formattedValue}. Difference: ${formatCurrency(difference)}.`,
       metrics: {
         extractedLabel: "Extracted net pay",
         extractedValue: netPay.formattedValue,
-        expectedLabel: "Expected net pay",
+        expectedLabel: expectationLabel,
         expectedValue: formatCurrency(expectedNetPay),
         differenceLabel: "Difference",
         differenceValue: formatCurrency(difference),
@@ -138,11 +153,11 @@ function buildNetPayCheck(normalized: NormalizedPayslipData): PayslipCheckResult
       title: "Net pay reconciliation",
       severity: "warning",
       summary: "Net pay is close but not exact.",
-      detail: `Expected ${formatCurrency(expectedNetPay)} and found ${netPay.formattedValue}. Difference: ${formatCurrency(difference)}.`,
+      detail: `${reconciliationBasis} Expected ${formatCurrency(expectedNetPay)} and found ${netPay.formattedValue}. Difference: ${formatCurrency(difference)}.`,
       metrics: {
         extractedLabel: "Extracted net pay",
         extractedValue: netPay.formattedValue,
-        expectedLabel: "Expected net pay",
+        expectedLabel: expectationLabel,
         expectedValue: formatCurrency(expectedNetPay),
         differenceLabel: "Difference",
         differenceValue: formatCurrency(difference),
@@ -155,11 +170,11 @@ function buildNetPayCheck(normalized: NormalizedPayslipData): PayslipCheckResult
     title: "Net pay reconciliation",
     severity: "fail",
     summary: "Net pay does not reconcile with the extracted deductions.",
-    detail: `Expected ${formatCurrency(expectedNetPay)} and found ${netPay.formattedValue}. Difference: ${formatCurrency(difference)}.`,
+    detail: `${reconciliationBasis} Expected ${formatCurrency(expectedNetPay)} and found ${netPay.formattedValue}. Difference: ${formatCurrency(difference)}.`,
     metrics: {
       extractedLabel: "Extracted net pay",
       extractedValue: netPay.formattedValue,
-      expectedLabel: "Expected net pay",
+      expectedLabel: expectationLabel,
       expectedValue: formatCurrency(expectedNetPay),
       differenceLabel: "Difference",
       differenceValue: formatCurrency(difference),
@@ -327,6 +342,7 @@ export function comparePayslip(normalized: NormalizedPayslipData): PayslipVerdic
   const notes = [
     "This MVP uses deterministic internal-consistency checks only.",
     "PAYE is currently checked with a broad effective-rate heuristic, not a full tax-table calculation.",
+    "When a total deductions figure is present, net pay reconciliation uses it ahead of PAYE-plus-UIF-only matching.",
   ];
 
   const summaryMap: Record<CheckSeverity, string> = {

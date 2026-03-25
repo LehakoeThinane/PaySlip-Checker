@@ -554,6 +554,27 @@ export function CheckWorkbench() {
                     </p>
                   </div>
                 ))}
+                {response.data.normalized.supplementaryFields.map((field) => (
+                  <div
+                    key={field.field}
+                    className="rounded-[1.5rem] border border-sky-200 bg-sky-50 p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-sky-950">
+                        {field.label}
+                      </p>
+                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-700">
+                        Supplementary
+                      </span>
+                    </div>
+                    <p className="mt-3 text-lg font-semibold text-slate-950">
+                      {field.formattedValue}
+                    </p>
+                    <p className="mt-2 text-xs leading-6 text-slate-600">
+                      Source: {field.sourceText}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
 

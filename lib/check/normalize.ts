@@ -12,6 +12,12 @@ type MoneyFieldDefinition = {
   patterns: RegExp[];
 };
 
+type SupplementaryMoneyFieldDefinition = {
+  field: "totalDeductions";
+  label: string;
+  patterns: RegExp[];
+};
+
 const moneyFormatter = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
@@ -50,6 +56,16 @@ const moneyFieldDefinitions: MoneyFieldDefinition[] = [
   },
 ];
 
+const supplementaryMoneyFieldDefinitions: SupplementaryMoneyFieldDefinition[] = [
+  {
+    field: "totalDeductions",
+    label: "Total deductions",
+    patterns: [
+      /(?:total\s+deductions|deductions\s+total)\s*[:\-]?\s*(?:r\s*)?(-?\d[\d,\s]*\.?\d{0,2})/i,
+    ],
+  },
+];
+
 const payPeriodPatterns = [
   /(?:pay\s+period|period)\s*[:\-]?\s*([a-z]{3,9}\s+\d{4}\s*(?:-|to)\s*[a-z]{3,9}\s+\d{4})/i,
   /(?:pay\s+period|period)\s*[:\-]?\s*([a-z]{3,9}\s+\d{4})/i,
@@ -67,7 +83,7 @@ function parseMoney(value: string) {
 
 function matchMoneyField(
   text: string,
-  definition: MoneyFieldDefinition,
+  definition: MoneyFieldDefinition | SupplementaryMoneyFieldDefinition,
 ): NormalizedMoneyField | null {
   for (const pattern of definition.patterns) {
     const match = text.match(pattern);
@@ -118,6 +134,7 @@ function matchPayPeriod(text: string): NormalizedTextField | null {
 export function normalizePayslipFields(text: string): NormalizedPayslipData {
   const foundFields: Array<NormalizedMoneyField | NormalizedTextField> = [];
   const missingFields: MissingNormalizedField[] = [];
+  const supplementaryFields: NormalizedMoneyField[] = [];
   const notes: string[] = [];
 
   for (const definition of moneyFieldDefinitions) {
@@ -146,6 +163,14 @@ export function normalizePayslipFields(text: string): NormalizedPayslipData {
     });
   }
 
+  for (const definition of supplementaryMoneyFieldDefinitions) {
+    const matchedField = matchMoneyField(text, definition);
+
+    if (matchedField) {
+      supplementaryFields.push(matchedField);
+    }
+  }
+
   if (foundFields.length > 0) {
     notes.push(
       `Matched ${foundFields.length} of 5 core MVP fields using deterministic label rules.`,
@@ -160,6 +185,12 @@ export function normalizePayslipFields(text: string): NormalizedPayslipData {
     );
   }
 
+  if (supplementaryFields.length > 0) {
+    notes.push(
+      `Also found supplementary fields: ${supplementaryFields.map((field) => field.label).join(", ")}.`,
+    );
+  }
+
   notes.push(
     "Field matching is currently label-based, so unusual payslip wording may need additional aliases.",
   );
@@ -167,6 +198,7 @@ export function normalizePayslipFields(text: string): NormalizedPayslipData {
   return {
     foundFields,
     missingFields,
+    supplementaryFields,
     notes,
   };
 }
